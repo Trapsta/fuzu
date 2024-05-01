@@ -1,6 +1,7 @@
 import { ThemeProvider } from "styled-components";
 import { FormattedMessage } from "react-intl";
 
+import { AppProvider } from "./contexts/AppContext";
 import { GlobalStyles } from "./styles/global-styles";
 import { lightTheme, darkTheme } from "./styles/themes";
 import useTheme from "./hooks/useTheme";
@@ -15,24 +16,26 @@ const App = () => {
   const selectedTheme = theme === "light" ? lightTheme : darkTheme;
 
   return (
-    <I18n locale={language as "en-US" | "sw"}>
-      <ThemeProvider theme={selectedTheme}>
-        <>
-          <GlobalStyles />
-          <ThemeToggler themeToggler={themeToggler} />
-          <LanguageToggler
-            languageToggler={languageToggler}
-            locale={language}
-          />
-          <h1>
-            <FormattedMessage id="app.title" />
-          </h1>
-          <h2>
-            <FormattedMessage id="app.tagline" />
-          </h2>
-        </>
-      </ThemeProvider>
-    </I18n>
+    <AppProvider>
+      <I18n locale={language as "en-US" | "sw"}>
+        <ThemeProvider theme={selectedTheme}>
+          <>
+            <GlobalStyles />
+            <ThemeToggler themeToggler={themeToggler} />
+            <LanguageToggler
+              languageToggler={languageToggler}
+              locale={language}
+            />
+            <h1>
+              <FormattedMessage id="app.title" />
+            </h1>
+            <h2>
+              <FormattedMessage id="app.tagline" />
+            </h2>
+          </>
+        </ThemeProvider>
+      </I18n>
+    </AppProvider>
   );
 };
 export default App;
