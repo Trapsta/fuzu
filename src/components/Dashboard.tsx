@@ -3,14 +3,14 @@ import {
   FlagIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/20/solid";
 import styled from "styled-components";
 import { FormattedDate, FormattedMessage } from "react-intl";
 import { Input } from "@nextui-org/input";
 import { Card, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { Spinner } from "@nextui-org/spinner";
-import { map } from "lodash";
+import { filter, map } from "lodash";
 
 import { WeatherData, useApp } from "../contexts/AppContext";
 import LocationCard from "./LocationCard";
@@ -25,6 +25,8 @@ import {
 import ThemeToggle from "./ThemeToggle";
 import LocaleToggle from "./LocaleToggle";
 import { useConfig } from "../contexts/ConfigContext";
+import TempWithUnits from "./TempWithUnits";
+import { useState } from "react";
 
 const DashboardContainer = styled.div`
   .app-title {
@@ -42,63 +44,107 @@ const DashboardContainer = styled.div`
 `;
 
 const Dashboard = (props: any) => {
-    const { locale } = useConfig()
+  const [keyword, setKeyword] = useState("");
+  const { locale, theme } = useConfig();
   const {
     currentLocationWeather,
     allLocationsWeather,
     countryCode,
     loadingState,
+    error,
   } = useApp();
   const currentLocation = currentLocationWeather?.current.name;
 
+  const nextForecast = getNextForecast(
+    currentLocationWeather?.forecast?.list || []
+  );
+
+  const relevantLocations = !keyword
+    ? allLocationsWeather
+    : filter(allLocationsWeather, (location) =>
+        location.current.name
+          .toLocaleLowerCase()
+          .includes(keyword.toLocaleLowerCase())
+      );
+
   return (
-    <DashboardContainer className="fixed inset-0 grid gap-0 grid-cols-2 grid-rows-1">
+    <DashboardContainer
+      className={`fixed inset-0 grid gap-0 grid-cols-2 grid-rows-1 ${
+        theme === "dark" ? "dark" : "light"
+      }`}
+    >
+      {error && (
+        <div className="rounded-md bg-red-50 p-4 fixed z-50 top-20 left-1/2 transform -translate-x-1/2">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <XCircleIcon
+                className="h-8 w-8 !text-red-400"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Oops!</h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>
+                  {/* @ts-ignore error is type any */}
+                  {error?.message ||
+                    error ||
+                    "There was an error fetching weather data. Please try again later."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="locations-container p-12">
-        <h3 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+        <h3 className="text-xl font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
           <span className="app-title">Fuzu</span>{" "}
           <FormattedMessage id="app.title" />
         </h3>
 
         {/* Search */}
-        <div className="mt-12 m-auto max-w-80">
-          <Input
-            isClearable
-            radius="sm"
-            classNames={{
-              label: "text-black/50 dark:text-white/90",
-              input: [
-                "bg-transparent",
-                "text-black/90 dark:text-white/90",
-                "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-              ],
-              innerWrapper: "bg-transparent",
-              inputWrapper: [
-                "shadow-md",
-                "bg-default-200/50",
-                "dark:bg-default/60",
-                "backdrop-blur-xl",
-                "backdrop-saturate-200",
-                "hover:bg-default-200/70",
-                "dark:hover:bg-default/70",
-                "group-data-[focused=true]:bg-default-200/50",
-                "dark:group-data-[focused=true]:bg-default/60",
-                "!cursor-text",
-              ],
-            }}
-            placeholder="Search location"
-            startContent={
-              <MagnifyingGlassIcon
-                width={24}
-                height={24}
-                className="text-black/50 mb-0.5 dark:text-white/90 text-slate-400 pointer-events-none flex-shrink-0"
-              />
-            }
-          />
-        </div>
+        {allLocationsWeather.length > 0 && (
+          <div className="mt-12 m-auto max-w-80">
+            <Input
+              isClearable
+              radius="sm"
+              classNames={{
+                label: "text-black/50 dark:text-white/90",
+                input: [
+                  "bg-transparent",
+                  "text-black/90 dark:text-white/90",
+                  "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                ],
+                innerWrapper: "bg-transparent",
+                inputWrapper: [
+                  "shadow-md",
+                  "bg-default-200/50",
+                  "dark:bg-default/60",
+                  "backdrop-blur-xl",
+                  "backdrop-saturate-200",
+                  "hover:bg-default-200/70",
+                  "dark:hover:bg-default/70",
+                  "group-data-[focused=true]:bg-default-200/50",
+                  "dark:group-data-[focused=true]:bg-default/60",
+                  "!cursor-text",
+                ],
+              }}
+              placeholder="Search location"
+              onChange={(e) => setKeyword(e.target.value)}
+              startContent={
+                <MagnifyingGlassIcon
+                  width={24}
+                  height={24}
+                  className="text-black/50 mb-0.5 dark:text-white/90 text-slate-400 pointer-events-none flex-shrink-0"
+                />
+              }
+            />
+          </div>
+        )}
 
         {/* Locations */}
         <div className="mt-6 m-auto max-w-80 grid gap-3 grid-cols-2">
-          {map(allLocationsWeather, (location: WeatherData) => (
+          {map(relevantLocations, (location: WeatherData) => (
             <LocationCard location={location} key={location.current.id} />
           ))}
         </div>
@@ -122,14 +168,14 @@ const Dashboard = (props: any) => {
             </svg>
           </a>
         </div>
-        <h3 className="mt-20 text-center text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+        <h3 className="mt-20 text-center text-xl font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
           <FormattedMessage id="weather.forecast" />{" "}
           <span className="app-title">{currentLocation}</span>
         </h3>
 
         <div className="py-6">
           {currentLocationWeather && (
-            <Card className="w-full h-[330px] col-span-12 sm:col-span-7 subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150">
+            <Card className="w-full h-[330px] col-span-12 sm:col-span-7 subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150 bg-gray-500">
               <CardHeader className="px-4 h-full absolute z-10 top-0 flex-col items-start subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150">
                 <div className="font-bold text-white/90 font-medium text-xl w-full">
                   <FormattedMessage id="today" />
@@ -145,13 +191,20 @@ const Dashboard = (props: any) => {
                 </div>
                 <div className="mt-4 relative w-full grid gap-3 grid-cols-2 grid-rows-1">
                   <div className="text-6xl font-semibold leading-none text-white">
-                    {tempDisplay(currentLocationWeather?.current.main.temp, locale)}
-                    <span className="text-sm text-white/80 block px-2 mt-2">
-                      <FormattedMessage id="real.feel" />:{" "}
-                      {tempDisplay(
-                        currentLocationWeather?.current.main.feels_like,
+                    <TempWithUnits
+                      temperature={tempDisplay(
+                        currentLocationWeather?.current.main.temp,
                         locale
                       )}
+                    />
+                    <span className="text-sm text-white/80 block px-2 mt-2">
+                      <FormattedMessage id="real.feel" />:{" "}
+                      <TempWithUnits
+                        temperature={tempDisplay(
+                          currentLocationWeather?.current.main.feels_like,
+                          locale
+                        )}
+                      />
                     </span>
                     <span className="text-sm text-white/80 block px-2 py-1">
                       {currentLocationWeather?.current.weather[0].description}
@@ -177,7 +230,10 @@ const Dashboard = (props: any) => {
                     </dt>
                     <dd className="ml-12 flex items-baseline pb-6 sm:pb-7">
                       <p className="text-xl font-semibold text-white">
-                        {windDisplay(currentLocationWeather.current.wind.speed, locale)}
+                        {windDisplay(
+                          currentLocationWeather.current.wind.speed,
+                          locale
+                        )}
                       </p>
                     </dd>
                   </div>
@@ -254,22 +310,21 @@ const Dashboard = (props: any) => {
             </Card>
           )}
         </div>
-        <div className="py-6">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">
-            <FormattedMessage id="weather.expect" /> {currentLocation}
-          </h3>
+        {nextForecast.length > 0 && (
+          <div className="py-6">
+            <h3 className="text-base font-semibold leading-6 text-darkTheme-locationBg dark:text-white">
+              <FormattedMessage id="weather.expect" /> {currentLocation}
+            </h3>
 
-          <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            {map(
-              getNextForecast(currentLocationWeather?.forecast?.list || []),
-              (item) => (
+            <dl className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              {map(nextForecast, (item) => (
                 <div
                   key={item.id}
-                  className="relative overflow-hidden rounded-lg bg-white px-4 py-3 shadow"
+                  className="relative overflow-hidden rounded-lg bg-lightTheme-locationBg dark:bg-darkTheme-locationBg px-4 py-3 shadow"
                 >
                   <dt className="flex flex-col w-full">
                     {item.dt_txt && (
-                      <p className="truncate text-sm text-center font-medium text-gray-500">
+                      <p className="truncate text-sm text-center font-medium text-darkTheme-locationBg dark:text-white">
                         {timeDisplay(item.dt_txt)}
                       </p>
                     )}
@@ -277,18 +332,20 @@ const Dashboard = (props: any) => {
                       src={`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`}
                       className="h-10 w-10 text-white m-auto py-1.5"
                     />
-                    <p className="truncate text-xl text-center font-semibold text-gray-900">
-                      {tempDisplay(item.main.temp, locale)}
+                    <p className="truncate text-xl text-center font-semibold text-darkTheme-locationBg dark:text-white">
+                      <TempWithUnits
+                        temperature={tempDisplay(item.main.temp, locale)}
+                      />
                     </p>
-                    <p className="truncate text-sm text-center font-medium text-gray-500">
+                    <p className="mt-2 truncate text-sm text-center font-medium text-darkTheme-locationBg dark:text-gray-400">
                       {item.weather[0].description}
                     </p>
                   </dt>
                 </div>
-              )
-            )}
-          </dl>
-        </div>
+              ))}
+            </dl>
+          </div>
+        )}
       </div>
       {loadingState && (
         <div className={`absolute inset-0 bg-black opacity-40 flex z-50`}>

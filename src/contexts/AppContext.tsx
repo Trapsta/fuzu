@@ -61,18 +61,25 @@ export type WeatherData = {
 };
 
 type AppContextType = {
+  error:
+    | string
+    | { message: string; code?: number; scope?: "locations" | "current" }
+    | null;
   loadingState: boolean;
   countryCode: string;
   locations: string[];
   currentLocation: string;
   currentLocationWeather: WeatherData | null;
   allLocationsWeather: WeatherData[];
+  setCurrentLocation: (location: string) => void;
 };
 
 const initialState = {
   loadingState: false,
+  error: null,
   countryCode: "KE",
   locations: [
+    "Nairobi",
     "Mombasa",
     "Kisumu",
     "Nakuru",
@@ -87,6 +94,7 @@ const initialState = {
   currentLocation: "Nairobi",
   currentLocationWeather: null,
   allLocationsWeather: [],
+  setCurrentLocation: (location: string) => {},
 };
 
 const AppContext = createContext<AppContextType>(initialState);
@@ -107,6 +115,13 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [state, setState] = useState<AppContextType>(initialState);
   const { locale } = useConfig();
 
+  const setCurrentLocation = (location: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      currentLocation: location,
+    }));
+  };
+
   // Let's' implement the fetching logic for weather data here.
   useEffect(() => {
     setState((prevState) => ({
@@ -119,11 +134,22 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setState((prevState) => ({
           ...prevState,
           currentLocationWeather: weatherData,
+          error: null,
         }));
       })
-      .catch((error: any) =>
-        console.error("Error fetching current location weather data:", error)
-      );
+      .catch((error: any) => {
+        console.error("Error fetching current location weather data:", error);
+        setState((prevState) => ({
+          ...prevState,
+          loadingState: false,
+          error: {
+            message:
+              error?.message || "Error fetching current location weather data",
+            code: error?.code || 0,
+            scope: "current",
+          },
+        }));
+      });
 
     // Fetch weather data for all locations.
     Promise.all(
@@ -136,6 +162,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
           ...prevState,
           allLocationsWeather: allLocationsWeatherData,
           loadingState: false,
+          error: null,
         }));
       })
       .catch((error) => {
@@ -143,9 +170,19 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setState((prevState) => ({
           ...prevState,
           loadingState: false,
+          error: {
+            message:
+              error?.message || "Error fetching weather data for all locations",
+            code: error?.code || 0,
+            scope: "locations",
+          },
         }));
       });
   }, [state.currentLocation, state.locations, locale]);
 
-  return <AppContext.Provider value={state}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ ...state, setCurrentLocation }}>
+      {children}
+    </AppContext.Provider>
+  );
 };
