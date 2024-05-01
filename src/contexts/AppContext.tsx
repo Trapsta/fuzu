@@ -6,8 +6,9 @@ import {
   useState,
 } from "react";
 import { fetchWeatherData } from "../utils";
+import { useConfig } from "./ConfigContext";
 
-type CurrentWeatherData = {
+export type CurrentWeatherData = {
   coord: {
     lon: number;
     lat: number;
@@ -36,6 +37,7 @@ type CurrentWeatherData = {
     all: number;
   };
   dt: number;
+  dt_txt?: string;
   sys: {
     type: number;
     id: number;
@@ -50,41 +52,7 @@ type CurrentWeatherData = {
 };
 
 type ForecastData = {
-  dt: number;
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max: number;
-    pressure: number;
-    sea_level: number;
-    grnd_level: number;
-    humidity: number;
-    temp_kf: number;
-  };
-  weather: {
-    id: number;
-    main: string;
-    description: string;
-    icon: string;
-  }[];
-  clouds: {
-    all: number;
-  };
-  wind: {
-    speed: number;
-    deg: number;
-    gust: number;
-  };
-  visibility: number;
-  pop: number;
-  rain?: {
-    "3h": number;
-  };
-  sys: {
-    pod: string;
-  };
-  dt_txt: string;
+  list: CurrentWeatherData[];
 };
 
 export type WeatherData = {
@@ -93,6 +61,7 @@ export type WeatherData = {
 };
 
 type AppContextType = {
+  loadingState: boolean;
   countryCode: string;
   locations: string[];
   currentLocation: string;
@@ -101,6 +70,7 @@ type AppContextType = {
 };
 
 const initialState = {
+  loadingState: false,
   countryCode: "KE",
   locations: [
     "Mombasa",
@@ -135,11 +105,16 @@ type AppProviderProps = {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [state, setState] = useState<AppContextType>(initialState);
+  const { locale } = useConfig();
 
   // Let's' implement the fetching logic for weather data here.
   useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      loadingState: true,
+    }));
     // Fetch current location weather data.
-    fetchWeatherData(state.currentLocation, state.countryCode, true)
+    fetchWeatherData(state.currentLocation, state.countryCode, true, locale)
       .then((weatherData) => {
         setState((prevState) => ({
           ...prevState,
@@ -153,19 +128,24 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     // Fetch weather data for all locations.
     Promise.all(
       state.locations.map((location) => {
-        return fetchWeatherData(location, state.countryCode, false);
+        return fetchWeatherData(location, state.countryCode, false, locale);
       })
     )
       .then((allLocationsWeatherData) => {
         setState((prevState) => ({
           ...prevState,
           allLocationsWeather: allLocationsWeatherData,
+          loadingState: false,
         }));
       })
-      .catch((error) =>
-        console.error("Error fetching weather data for all locations:", error)
-      );
-  }, [state.currentLocation, state.locations]);
+      .catch((error) => {
+        console.error("Error fetching weather data for all locations:", error);
+        setState((prevState) => ({
+          ...prevState,
+          loadingState: false,
+        }));
+      });
+  }, [state.currentLocation, state.locations, locale]);
 
   return <AppContext.Provider value={state}>{children}</AppContext.Provider>;
 };
