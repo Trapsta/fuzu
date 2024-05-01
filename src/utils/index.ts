@@ -1,7 +1,7 @@
 import { WeatherData } from "../contexts/AppContext";
 
 export async function fetchWeatherData(city: string, countryCode: string, includeForecast: boolean): Promise<WeatherData>  {
-    const apiKey = process.env.OPEN_WEATHER_API_KEY || 'e416b78df6e87d22b228f24c67e1a2d2'
+    const apiKey = process.env.REACT_APP_OPEN_WEATHER_API_KEY || 'e416b78df6e87d22b228f24c67e1a2d2'
 
     try {
         // Fetch current weather data
