@@ -1,5 +1,5 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
-import { Switch, useSwitch } from "@nextui-org/switch";
+import { useSwitch } from "@nextui-org/switch";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 import { useConfig } from "../contexts/ConfigContext";

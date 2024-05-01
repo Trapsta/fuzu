@@ -7,6 +7,9 @@ const LocaleToggle = () => {
 
   const { Component, slots, getBaseProps, getInputProps } = useSwitch({
     onValueChange: toggleLocale as (isSelected: boolean) => void,
+    "aria-label": "locale-toggle",
+    value: locale,
+    id: "locale-toggle",
   });
 
   return (

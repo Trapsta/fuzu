@@ -60,7 +60,7 @@ export type WeatherData = {
   forecast?: ForecastData;
 };
 
-type AppContextType = {
+export type AppContextType = {
   error:
     | string
     | { message: string; code?: number; scope?: "locations" | "current" }
@@ -74,7 +74,7 @@ type AppContextType = {
   setCurrentLocation: (location: string) => void;
 };
 
-const initialState = {
+export const initialState: AppContextType = {
   loadingState: false,
   error: null,
   countryCode: "KE",
@@ -109,10 +109,14 @@ export function useApp() {
 
 type AppProviderProps = {
   children: ReactNode;
+  defaultState?: AppContextType;
 };
 
-export const AppProvider = ({ children }: AppProviderProps) => {
-  const [state, setState] = useState<AppContextType>(initialState);
+export const AppProvider = ({
+  children,
+  defaultState = initialState,
+}: AppProviderProps) => {
+  const [state, setState] = useState<AppContextType>(() => defaultState);
   const { locale } = useConfig();
 
   const setCurrentLocation = (location: string) => {
@@ -178,7 +182,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
           },
         }));
       });
-  }, [state.currentLocation, state.locations, locale]);
+  }, [state.currentLocation, state.locations, state.countryCode, locale]);
 
   return (
     <AppContext.Provider value={{ ...state, setCurrentLocation }}>

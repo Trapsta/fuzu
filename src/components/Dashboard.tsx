@@ -43,7 +43,7 @@ const DashboardContainer = styled.div`
   }
 `;
 
-const Dashboard = (props: any) => {
+const Dashboard = () => {
   const [keyword, setKeyword] = useState("");
   const { locale, theme } = useConfig();
   const {
@@ -107,6 +107,7 @@ const Dashboard = (props: any) => {
           <div className="mt-12 m-auto max-w-80">
             <Input
               isClearable
+              onClear={() => setKeyword("")}
               radius="sm"
               classNames={{
                 label: "text-black/50 dark:text-white/90",
@@ -143,7 +144,10 @@ const Dashboard = (props: any) => {
         )}
 
         {/* Locations */}
-        <div className="mt-6 m-auto max-w-80 grid gap-3 grid-cols-2">
+        <div
+          aria-label="Locations Grid"
+          className="mt-6 m-auto max-w-80 grid gap-3 grid-cols-2"
+        >
           {map(relevantLocations, (location: WeatherData) => (
             <LocationCard location={location} key={location.current.id} />
           ))}
@@ -153,7 +157,7 @@ const Dashboard = (props: any) => {
         <div className="px-2 flex gap-3 items-center justify-end">
           <LocaleToggle />
           <ThemeToggle />
-          <a href="https://github.com/Trapsta/fuzu" target="_blank">
+          <a href="https://github.com/Trapsta/fuzu" target="_blank" rel="noreferrer">
             <svg
               width="28"
               height="28"
@@ -213,6 +217,7 @@ const Dashboard = (props: any) => {
                   <img
                     src={`https://openweathermap.org/img/wn/${currentLocationWeather?.current.weather[0].icon}@4x.png`}
                     className="px-2 w-40 h-40 -mt-12"
+                    alt="weather icon"
                   />
                 </div>
                 <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -331,6 +336,7 @@ const Dashboard = (props: any) => {
                     <img
                       src={`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`}
                       className="h-10 w-10 text-white m-auto py-1.5"
+                      alt="weather icon"
                     />
                     <p className="truncate text-xl text-center font-semibold text-darkTheme-locationBg dark:text-white">
                       <TempWithUnits

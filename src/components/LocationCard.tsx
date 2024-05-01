@@ -1,6 +1,4 @@
-import { SunIcon } from "@heroicons/react/24/outline";
-import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
+import { Card, CardHeader, CardBody } from "@nextui-org/card";
 import { WeatherData, useApp } from "../contexts/AppContext";
 import { tempDisplay } from "../utils";
 import { useConfig } from "../contexts/ConfigContext";
@@ -38,11 +36,15 @@ const LocationCard = ({ location }: Props) => {
             <img
               src={`https://openweathermap.org/img/wn/${weatherIconCode}@2x.png`}
               className="absolute top-2 right-2 w-20 h-20 z-1"
+              alt="weather icon"
             />
           </div>
         </div>
       </CardHeader>
-      <CardBody className="mt-3 px-3 py-3 text-small text-gray-500 dark:text-gray-400">
+      <CardBody
+        aria-label="Location Name"
+        className="mt-3 px-3 py-3 text-small text-gray-500 dark:text-gray-400"
+      >
         <p className="font-semibold">{currentWeather?.name}</p>
       </CardBody>
     </Card>

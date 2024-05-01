@@ -1,4 +1,3 @@
-import { ThemeProvider } from "styled-components";
 import { NextUIProvider } from "@nextui-org/system";
 
 import { AppProvider } from "./contexts/AppContext";
