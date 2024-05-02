@@ -105,7 +105,7 @@ const Dashboard = () => {
       >
         <h3 className="text-3xl xl:text-xl absolute xl:relative font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
           <ArrowLeftIcon
-            className="block xl:hidden w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg"
+            className="block xl:hidden w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg dark:!text-white"
             onClick={() => setShowLocations(!showLocations)}
           />
           <span className="app-title">Fuzu</span>{" "}
@@ -174,7 +174,7 @@ const Dashboard = () => {
         <div className="px-2 mb-3 flex gap-3 items-center justify-center block xl:hidden">
           <h3 className="text-3xl block xl:hidden font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
             <Bars3Icon
-              className="w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg"
+              className="w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg dark:!text-white"
               onClick={() => setShowLocations(!showLocations)}
             />
             <span className="app-title">Fuzu</span>{" "}
@@ -193,7 +193,7 @@ const Dashboard = () => {
               width="28"
               height="28"
               aria-hidden="true"
-              className="octicon octicon-mark-github"
+              className="octicon octicon-mark-github dark:fill-white"
               viewBox="0 0 16 16"
             >
               <path
