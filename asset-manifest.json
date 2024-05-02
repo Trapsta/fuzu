@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/fuzu/static/css/main.a2ede05c.css",
+    "main.js": "/fuzu/static/js/main.b6da8a23.js",
+    "static/js/453.fd8ef57c.chunk.js": "/fuzu/static/js/453.fd8ef57c.chunk.js",
+    "index.html": "/fuzu/index.html",
+    "main.a2ede05c.css.map": "/fuzu/static/css/main.a2ede05c.css.map",
+    "main.b6da8a23.js.map": "/fuzu/static/js/main.b6da8a23.js.map",
+    "453.fd8ef57c.chunk.js.map": "/fuzu/static/js/453.fd8ef57c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a2ede05c.css",
+    "static/js/main.b6da8a23.js"
+  ]
+}
