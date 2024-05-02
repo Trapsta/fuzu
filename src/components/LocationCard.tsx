@@ -1,14 +1,15 @@
 import { Card, CardHeader, CardBody } from "@nextui-org/card";
 import { WeatherData, useApp } from "../contexts/AppContext";
-import { tempDisplay } from "../utils";
+import { tempDisplay, isMobileDevice } from "../utils";
 import { useConfig } from "../contexts/ConfigContext";
 import TempWithUnits from "./TempWithUnits";
 
 type Props = {
   location: WeatherData;
+  toggleLocations: () => void
 };
 
-const LocationCard = ({ location }: Props) => {
+const LocationCard = ({ location, toggleLocations }: Props) => {
   const { currentLocation, setCurrentLocation } = useApp();
   const { locale } = useConfig();
   const currentWeather = location.current;
@@ -19,11 +20,18 @@ const LocationCard = ({ location }: Props) => {
     return null;
   }
 
+  const onClick = () => {
+    setCurrentLocation(currentWeather?.name)
+    if(isMobileDevice()){
+      toggleLocations()
+    }
+  }
+
   return (
     <Card
       className="max-w-[340px] bg-white border border-gray-200 hover:bg-gray-100 dark:bg-darkTheme-currentBg dark:border-none"
       isPressable
-      onPress={() => setCurrentLocation(currentWeather?.name)}
+      onPress={onClick}
     >
       <CardHeader className="justify-between">
         <div className="flex gap-5">

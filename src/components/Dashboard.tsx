@@ -1,5 +1,7 @@
 import {
+  ArrowLeftIcon,
   ArrowsPointingInIcon,
+  Bars3Icon,
   FlagIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
@@ -44,6 +46,7 @@ const DashboardContainer = styled.div`
 `;
 
 const Dashboard = () => {
+  const [showLocations, setShowLocations] = useState(false);
   const [keyword, setKeyword] = useState("");
   const { locale, theme } = useConfig();
   const {
@@ -69,7 +72,7 @@ const Dashboard = () => {
 
   return (
     <DashboardContainer
-      className={`fixed inset-0 grid gap-0 grid-cols-2 grid-rows-1 ${
+      className={`w-full h-full block xl:grid gap-0 grid-cols-2 grid-rows-1 ${
         theme === "dark" ? "dark" : "light"
       }`}
     >
@@ -96,15 +99,22 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      <div className="locations-container p-12">
-        <h3 className="text-xl font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
+      <div
+        style={showLocations ? { display: "block" } : undefined}
+        className="locations-container p-12 hidden xl:block"
+      >
+        <h3 className="text-3xl xl:text-xl absolute xl:relative font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
+          <ArrowLeftIcon
+            className="block xl:hidden w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg"
+            onClick={() => setShowLocations(!showLocations)}
+          />
           <span className="app-title">Fuzu</span>{" "}
           <FormattedMessage id="app.title" />
         </h3>
 
         {/* Search */}
         {allLocationsWeather.length > 0 && (
-          <div className="mt-12 m-auto max-w-80">
+          <div className="mt-20 xl:mt-12 m-auto max-w-80">
             <Input
               isClearable
               onClear={() => setKeyword("")}
@@ -149,15 +159,36 @@ const Dashboard = () => {
           className="mt-6 m-auto max-w-80 grid gap-3 grid-cols-2"
         >
           {map(relevantLocations, (location: WeatherData) => (
-            <LocationCard location={location} key={location.current.id} />
+            <LocationCard
+              location={location}
+              key={location.current.id}
+              toggleLocations={() => setShowLocations(!showLocations)}
+            />
           ))}
         </div>
       </div>
-      <div className="current-weather-container p-8">
-        <div className="px-2 flex gap-3 items-center justify-end">
+      <div
+        style={showLocations ? { display: "none" } : undefined}
+        className="current-weather-container p-8"
+      >
+        <div className="px-2 mb-3 flex gap-3 items-center justify-center block xl:hidden">
+          <h3 className="text-3xl block xl:hidden font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
+            <Bars3Icon
+              className="w-8 h-8 inline-block mr-3 cursor-pointer !text-darkTheme-locationBg"
+              onClick={() => setShowLocations(!showLocations)}
+            />
+            <span className="app-title">Fuzu</span>{" "}
+            <FormattedMessage id="app.title" />
+          </h3>
+        </div>
+        <div className="px-2 flex gap-3 items-center justify-center xl:justify-end">
           <LocaleToggle />
           <ThemeToggle />
-          <a href="https://github.com/Trapsta/fuzu" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/Trapsta/fuzu"
+            target="_blank"
+            rel="noreferrer"
+          >
             <svg
               width="28"
               height="28"
@@ -172,7 +203,7 @@ const Dashboard = () => {
             </svg>
           </a>
         </div>
-        <h3 className="mt-20 text-center text-xl font-bold tracking-tight text-darkTheme-locationBg dark:text-white sm:text-2xl">
+        <h3 className="mt-12 xl:mt-20 text-center text-xl font-bold tracking-tight text-darkTheme-locationBg dark:text-white">
           <FormattedMessage id="weather.forecast" />{" "}
           <span className="app-title">{currentLocation}</span>
         </h3>
@@ -180,7 +211,7 @@ const Dashboard = () => {
         <div className="py-6">
           {currentLocationWeather && (
             <Card className="w-full h-[330px] col-span-12 sm:col-span-7 subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150 bg-gray-500">
-              <CardHeader className="px-4 h-full absolute z-10 top-0 flex-col items-start subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150">
+              <CardHeader className="px-2.5 xl:px-4 h-full absolute z-10 top-0 flex-col items-start subpixel-antialiased rounded-b-large backdrop-blur backdrop-saturate-150">
                 <div className="font-bold text-white/90 font-medium text-xl w-full">
                   <FormattedMessage id="today" />
                   <span className="text-xs text-white float-right mt-2 mr-3">
@@ -193,7 +224,7 @@ const Dashboard = () => {
                     />
                   </span>
                 </div>
-                <div className="mt-4 relative w-full grid gap-3 grid-cols-2 grid-rows-1">
+                <div className="mt-4 relative w-full grid gap-1 xl:gap-3 grid-cols-2 grid-rows-1">
                   <div className="text-6xl font-semibold leading-none text-white">
                     <TempWithUnits
                       temperature={tempDisplay(
@@ -216,12 +247,12 @@ const Dashboard = () => {
                   </div>
                   <img
                     src={`https://openweathermap.org/img/wn/${currentLocationWeather?.current.weather[0].icon}@4x.png`}
-                    className="px-2 w-40 h-40 -mt-12"
+                    className="px-2 w-40 h-40 -mt-2 xl:-mt-12"
                     alt="weather icon"
                   />
                 </div>
-                <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="relative overflow-hidden rounded-lg px-4">
+                <dl className="-mt-4 xl:mt-5 grid grid-cols-3 gap-2 xl:gap-5">
+                  <div className="relative overflow-hidden rounded-lg px-0 xl:px-4">
                     <dt>
                       <div className="absolute rounded-md p-3">
                         <FlagIcon
@@ -229,12 +260,12 @@ const Dashboard = () => {
                           aria-hidden="true"
                         />
                       </div>
-                      <p className="ml-12 truncate text-sm font-medium text-white/60">
+                      <p className="ml-12 truncate text-sm font-medium text-white/60 invisible xl:visible">
                         <FormattedMessage id="wind.speed" />
                       </p>
                     </dt>
-                    <dd className="ml-12 flex items-baseline pb-6 sm:pb-7">
-                      <p className="text-xl font-semibold text-white">
+                    <dd className="-mt-2 xl:mt-0 ml-12 flex items-baseline pb-6 sm:pb-7">
+                      <p className="text-md xl:text-xl font-semibold text-white">
                         {windDisplay(
                           currentLocationWeather.current.wind.speed,
                           locale
@@ -243,7 +274,7 @@ const Dashboard = () => {
                     </dd>
                   </div>
 
-                  <div className="relative overflow-hidden rounded-lg px-4">
+                  <div className="relative overflow-hidden rounded-lg px-0 xl:px-4">
                     <dt>
                       <div className="absolute rounded-md p-3">
                         <ArrowsPointingInIcon
@@ -251,12 +282,12 @@ const Dashboard = () => {
                           aria-hidden="true"
                         />
                       </div>
-                      <p className="ml-12 truncate text-sm font-medium text-white/60">
+                      <p className="ml-12 truncate text-sm font-medium text-white/60 invisible xl:visible">
                         <FormattedMessage id="pressure" />
                       </p>
                     </dt>
-                    <dd className="ml-12 flex items-baseline pb-6 sm:pb-7">
-                      <p className="text-xl font-semibold text-white">
+                    <dd className="-mt-6 xl:mt-0 ml-12 flex items-baseline pb-6 sm:pb-7">
+                      <p className="text-md xl:text-xl font-semibold text-white">
                         {pressureDisplay(
                           currentLocationWeather.current.main.pressure
                         )}
@@ -264,7 +295,7 @@ const Dashboard = () => {
                     </dd>
                   </div>
 
-                  <div className="relative overflow-hidden rounded-lg px-4">
+                  <div className="relative overflow-hidden rounded-lg px-0 xl:px-4">
                     <dt>
                       <div className="absolute rounded-md p-3">
                         <svg
@@ -286,12 +317,12 @@ const Dashboard = () => {
                           ></path>
                         </svg>
                       </div>
-                      <p className="ml-12 truncate text-sm font-medium text-white/60">
+                      <p className="ml-12 truncate text-sm font-medium text-white/60 invisible xl:visible">
                         <FormattedMessage id="humidity" />
                       </p>
                     </dt>
-                    <dd className="ml-12 flex items-baseline pb-6 sm:pb-7">
-                      <p className="text-xl font-semibold text-white">
+                    <dd className="-mt-2 xl:mt-0 ml-12 flex items-baseline pb-6 sm:pb-7">
+                      <p className="text-md xl:text-xl font-semibold text-white">
                         {humidityDisplay(
                           currentLocationWeather.current.main.humidity
                         )}
@@ -299,9 +330,9 @@ const Dashboard = () => {
                     </dd>
                   </div>
                 </dl>
-                <div className="flex flex-grow gap-2 items-center">
+                <div className="-mt-3 xl:mt-0 flex flex-grow gap-2 items-center">
                   <MapPinIcon className="rounded-full w-10 h-11" />
-                  <p className="text-sm text-white/60">
+                  <p className="text-md xl:text-sm text-white xl:text-white/60">
                     {currentLocation} , {countryCode}
                   </p>
                 </div>
@@ -317,11 +348,11 @@ const Dashboard = () => {
         </div>
         {nextForecast.length > 0 && (
           <div className="py-6">
-            <h3 className="text-base font-semibold leading-6 text-darkTheme-locationBg dark:text-white">
+            <h3 className="text-xl xl:text-base font-semibold leading-6 text-darkTheme-locationBg dark:text-white">
               <FormattedMessage id="weather.expect" /> {currentLocation}
             </h3>
 
-            <dl className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+            <dl className="mt-6 grid grid-cols-1 gap-6 xl:gap-2 sm:grid-cols-3 lg:grid-cols-5">
               {map(nextForecast, (item) => (
                 <div
                   key={item.id}
@@ -329,21 +360,21 @@ const Dashboard = () => {
                 >
                   <dt className="flex flex-col w-full">
                     {item.dt_txt && (
-                      <p className="truncate text-sm text-center font-medium text-darkTheme-locationBg dark:text-white">
+                      <p className="truncate text-xl xl:text-sm text-center font-medium text-darkTheme-locationBg dark:text-white">
                         {timeDisplay(item.dt_txt)}
                       </p>
                     )}
                     <img
                       src={`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`}
-                      className="h-10 w-10 text-white m-auto py-1.5"
+                      className="h-15 w-15 xl:h-10 xl:w-10 text-white m-auto py-1 xl:py-1.5"
                       alt="weather icon"
                     />
-                    <p className="truncate text-xl text-center font-semibold text-darkTheme-locationBg dark:text-white">
+                    <p className="truncate text-3xl xl:text-xl text-center font-semibold text-darkTheme-locationBg dark:text-white">
                       <TempWithUnits
                         temperature={tempDisplay(item.main.temp, locale)}
                       />
                     </p>
-                    <p className="mt-2 truncate text-sm text-center font-medium text-darkTheme-locationBg dark:text-gray-400">
+                    <p className="mt-2 truncate text-xl xl:text-sm text-center font-medium text-darkTheme-locationBg dark:text-gray-400">
                       {item.weather[0].description}
                     </p>
                   </dt>
